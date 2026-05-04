@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Tracking Pengiriman</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="trackingPage">
+    <div class="container">
+      <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-top: 20px;">
+        <a href="dashboard.html" style="color: #667eea; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← Kembali ke Dashboard</a>
+      </div>
+
+      <div class="tracking-container">
+        <h1 style="color: #333; margin-bottom: 10px;">Tracking Pengiriman Bahan Ajar</h1>
+        <p style="color: #666; margin-bottom: 30px;">Masukkan nomor Delivery Order (DO) untuk melacak status pengiriman bahan ajar anda</p>
+        
+        <div class="search-form">
+          <input type="text" id="nomorDO" placeholder="Masukkan nomor DO (contoh: 2023001234 atau 2023005678)">
+          <button id="searchBtn">Cari</button>
+        </div>
+        
+        <div id="trackingResult"></div>
+      </div>
+
+      <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-top: 30px; margin-bottom: 30px;">
+        <h3 style="color: #333; margin-bottom: 15px;">Nomor DO yang Tersedia untuk Testing:</h3>
+        <ul style="color: #666; line-height: 2;">
+          <li><strong>2023001234</strong> - Rina Wulandari (Status: Dalam Perjalanan)</li>
+          <li><strong>2023005678</strong> - Agus Pranoto (Status: Dikirim)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

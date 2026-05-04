@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div style="text-align: center;">
+        <img src="./assets/logo-ut.png" width="100" alt="">
+      </div>
+        <h2>SITTA</h2>
+        <p style="font-size: 12px; color: #bbb;">Aplikasi Pemesanan</p>
+      </div>
+      
+      <nav>
+        <ul>
+          <li><a href="#" data-section="informasiBahanAjar" class="active">📚 Informasi Bahan Ajar</a></li>
+          <li><a href="tracking.html">🚚 Tracking Pengiriman</a></li>
+          <li>
+            <a href="#" data-section="laporan">📊 Laporan</a>
+            <ul class="submenu">
+              <li><a href="#" data-section="monitoringProgress">Monitoring Progress DO</a></li>
+              <li><a href="#" data-section="rekapBahanAjar">Rekap Bahan Ajar</a></li>
+            </ul>
+          </li>
+          <li><a href="#" data-section="historiTransaksi">📝 Histori Transaksi</a></li>
+          <li><a href="stok.html">📦 Informasi Stok</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- HEADER -->
+      <header class="header">
+        <div>
+          <div class="greeting"></div>
+        </div>
+        <div class="user-info">
+          <p><strong class="user-name"></strong></p>
+          <p class="user-role"></p>
+          <p class="user-lokasi"></p>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </header>
+
+      <!-- INFORMASI BAHAN AJAR SECTION -->
+      <section id="informasiBahanAjar" class="content-section active">
+        <div class="info-container">
+          <h2>Informasi Bahan Ajar</h2>
+          <p style="color: #666; margin-bottom: 20px;">Daftar lengkap bahan ajar yang tersedia di sistem SITTA</p>
+          <div class="book-grid"></div>
+        </div>
+      </section>
+
+      <!-- TRACKING SECTION -->
+      <section id="tracking" class="content-section">
+        <div class="tracking-container" style="max-width: 800px;">
+          <h2>Tracking Pengiriman Bahan Ajar</h2>
+          <p style="color: #666; margin-bottom: 20px;">Masukkan nomor Delivery Order (DO) untuk melacak pengiriman anda</p>
+          
+          <div class="search-form">
+            <input type="text" id="nomorDO" placeholder="Masukkan nomor DO (contoh: 2023001234)">
+            <button id="searchBtn">Cari</button>
+          </div>
+          
+          <div id="trackingResult"></div>
+        </div>
+      </section>
+
+      <!-- MONITORING PROGRESS SECTION -->
+      <section id="monitoringProgress" class="content-section">
+        <div class="table-container">
+          <h2>Monitoring Progress DO Bahan Ajar</h2>
+          <p style="color: #666; margin-bottom: 20px;">Status pengiriman bahan ajar untuk setiap DO</p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Bahan Ajar</th>
+                <th>Kode Barang</th>
+                <th>Progress</th>
+                <th>Stok</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REKAP BAHAN AJAR SECTION -->
+      <section id="rekapBahanAjar" class="content-section">
+        <div class="table-container">
+          <h2>Rekap Bahan Ajar</h2>
+          <p style="color: #666; margin-bottom: 20px;">Daftar lengkap bahan ajar dengan detail informasi</p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Kode Lokasi</th>
+                <th>Kode Barang</th>
+                <th>Nama Barang</th>
+                <th>Jenis</th>
+                <th>Edisi</th>
+                <th>Stok</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- HISTORI TRANSAKSI SECTION -->
+      <section id="historiTransaksi" class="content-section">
+        <div class="history-container">
+          <h2>Histori Transaksi Bahan Ajar</h2>
+          <p style="color: #666; margin-bottom: 20px;">Daftar riwayat transaksi dan pengiriman bahan ajar anda</p>
+          <div class="history-content"></div>
+        </div>
+      </section>
+
+      <!-- INFORMASI STOK SECTION -->
+      <section id="stok" class="content-section">
+        <div class="stock-container">
+          <div class="stock-header">
+            <h2>Informasi Stok Bahan Ajar</h2>
+            <button class="add-stock-btn" id="addStockBtn">+ Tambah Stok</button>
+          </div>
+          
+          <!-- Form Tambah Stok -->
+          <div id="newStockForm" class="form-row new-stock" style="display: none;">
+            <input type="text" id="kodeLokasi" placeholder="Kode Lokasi" required>
+            <input type="text" id="kodeBarang" placeholder="Kode Barang" required>
+            <input type="text" id="namaBarang" placeholder="Nama Barang" required>
+            <select id="jenisBarang" required>
+              <option value="">Pilih Jenis Barang</option>
+              <option value="BMP">BMP</option>
+              <option value="Modul">Modul</option>
+              <option value="Tutorial">Tutorial</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+            <input type="text" id="edisi" placeholder="Edisi" required>
+            <input type="number" id="stok" placeholder="Jumlah Stok" required>
+            <div class="form-actions">
+              <button class="btn-save" onclick="saveNewStock(event)">Simpan</button>
+              <button class="btn-cancel" onclick="cancelAddStock()">Batal</button>
+            </div>
+          </div>
+          
+          <!-- Tabel Stok -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kode Lokasi</th>
+                  <th>Kode Barang</th>
+                  <th>Nama Barang</th>
+                  <th>Jenis</th>
+                  <th>Edisi</th>
+                  <th>Stok</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="stockTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

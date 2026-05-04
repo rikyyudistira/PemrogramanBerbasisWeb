@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div style="text-align: center;">
+        <img src="./assets/logo-ut.png" width="100" alt="">
+      </div>
+      <h1>SITTA</h1>
+      <p style="text-align: center; color: #999; margin-bottom: 30px;">Sistem Pemesanan Bahan Ajar</p>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Masukkan email anda" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Masukkan password anda" required>
+        </div>
+        
+        <button type="submit" class="login-btn">Masuk</button>
+      </form>
+      
+      <div class="login-links">
+        <button type="button" onclick="openModal('forgotPasswordModal')">Lupa Password</button>
+        <button type="button" onclick="openModal('registerModal')">Daftar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Forgot Password -->
+  <div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal('forgotPasswordModal')">&times;</span>
+      <h2>Lupa Password</h2>
+      
+      <form id="forgotPasswordForm">
+        <div class="form-group">
+          <label for="forgotEmail">Email</label>
+          <input type="email" id="forgotEmail" placeholder="Masukkan email terdaftar anda" required>
+        </div>
+        
+        <button type="submit">Cari Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Register -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal('registerModal')">&times;</span>
+      <h2>Daftar Akun Baru</h2>
+      
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="regNama">Nama Lengkap</label>
+          <input type="text" id="regNama" placeholder="Masukkan nama lengkap anda" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="Masukkan email anda" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" placeholder="Masukkan password" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="regRole">Role/Posisi</label>
+          <select id="regRole" required>
+            <option value="">Pilih Role</option>
+            <option value="UPBJJ-UT">UPBJJ-UT</option>
+            <option value="Puslaba">Puslaba</option>
+            <option value="Fakultas">Fakultas</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+        
+        <button type="submit">Daftar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

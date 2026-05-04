@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Informasi Stok Bahan Ajar</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="stockPage">
+    <div class="container">
+      <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-top: 20px;">
+        <a href="dashboard.html" style="color: #667eea; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← Kembali ke Dashboard</a>
+      </div>
+
+      <div class="stock-container">
+        <div class="stock-header">
+          <h1 style="color: #333;">Informasi Stok Bahan Ajar</h1>
+          <button class="add-stock-btn" id="addStockBtn">+ Tambah Stok</button>
+        </div>
+        
+        <p style="color: #666; margin-bottom: 20px;">Kelola informasi stok bahan ajar di sistem SITTA. Anda dapat menambah atau menghapus data stok sesuai kebutuhan.</p>
+        
+        <!-- Form Tambah Stok -->
+        <div id="newStockForm" class="form-row new-stock" style="display: none;">
+          <input type="text" id="kodeLokasi" placeholder="Kode Lokasi" required>
+          <input type="text" id="kodeBarang" placeholder="Kode Barang" required>
+          <input type="text" id="namaBarang" placeholder="Nama Barang" required>
+          <select id="jenisBarang" required>
+            <option value="">Pilih Jenis Barang</option>
+            <option value="BMP">BMP</option>
+            <option value="Modul">Modul</option>
+            <option value="Tutorial">Tutorial</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+          <input type="text" id="edisi" placeholder="Edisi" required>
+          <input type="number" id="stok" placeholder="Jumlah Stok" required>
+          <div class="form-actions">
+            <button class="btn-save" onclick="saveNewStock(event)">Simpan</button>
+            <button class="btn-cancel" onclick="cancelAddStock()">Batal</button>
+          </div>
+        </div>
+        
+        <!-- Tabel Stok -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Kode Lokasi</th>
+                <th>Kode Barang</th>
+                <th>Nama Barang</th>
+                <th>Jenis</th>
+                <th>Edisi</th>
+                <th>Stok</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="stockTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
