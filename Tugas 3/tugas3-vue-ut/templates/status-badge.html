@@ -1,0 +1,10 @@
+<script type="text/x-template" id="tpl-status-badge">
+  <div class="status-container">
+    <span class="status-pill" :class="statusMeta.className">
+      <span class="status-dot"></span>
+      <span v-text="statusMeta.label"></span>
+    </span>
+    <div class="status-tooltip" v-if="item.catatanHTML" v-html="item.catatanHTML"></div>
+    <div class="status-tooltip" v-else>Tanpa catatan</div>
+  </div>
+</script>

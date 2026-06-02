@@ -1,0 +1,16 @@
+<script type="text/x-template" id="tpl-app-modal">
+  <div v-if="visible" class="modal-backdrop" @click.self="$emit('close')">
+    <section class="modal-card" role="dialog" :aria-label="title">
+      <header class="modal-head">
+        <div>
+          <span class="panel-kicker" v-text="title"></span>
+          <h2><slot name="heading"></slot></h2>
+        </div>
+        <button class="button button-ghost" type="button" @click="$emit('close')" v-text="closeLabel"></button>
+      </header>
+      <div class="modal-body">
+        <slot></slot>
+      </div>
+    </section>
+  </div>
+</script>

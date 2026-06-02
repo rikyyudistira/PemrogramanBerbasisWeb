@@ -1,0 +1,241 @@
+<script type="text/x-template" id="tpl-stock-table">
+  <div>
+    <section class="hero hero-compact">
+      <div class="hero-copy">
+        <p class="eyebrow">Halaman Stok</p>
+        <h1>Stok Bahan Ajar</h1>
+        <p class="hero-text">Kelola stok bahan ajar UT dan pantau kebutuhan reorder secara interaktif.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="button" type="button" @click="openStockModal('add')">Tambah data</button>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">Total item</span>
+        <strong v-text="totalItems"></strong>
+        <span class="stat-help">Semua bahan ajar tersimpan</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Total stok</span>
+        <strong v-text="totalQty"></strong>
+        <span class="stat-help">Akumulasi qty dari seluruh item</span>
+      </article>
+      <article class="stat-card alert-warning">
+        <span class="stat-label">Perlu reorder</span>
+        <strong v-text="reorderCount"></strong>
+        <span class="stat-help">Qty di bawah safety stock</span>
+      </article>
+      <article class="stat-card alert-danger">
+        <span class="stat-label">Stok kosong</span>
+        <strong v-text="emptyCount"></strong>
+        <span class="stat-help">Qty sama dengan nol</span>
+      </article>
+    </section>
+
+    <section style="margin-bottom: 18px;">
+      <article class="panel">
+        <header class="panel-head">
+          <div>
+            <span class="panel-kicker">Filter & Sort</span>
+            <h2>Kontrol tampilan stok</h2>
+          </div>
+          <div>
+            <button class="button button-secondary" type="button" @click="resetFilters">Reset Filter</button>
+          </div>
+        </header>
+
+        <div class="form-grid filter compact-grid">
+          <div class="field">
+            <label for="filterMode">Mode Filter</label>
+            <select id="filterMode" v-model="filterMode">
+              <option value="all">Semua stok</option>
+              <option value="upbjj">Berdasarkan UT-Daerah</option>
+            </select>
+          </div>
+
+          <div class="field" v-if="filterMode === 'upbjj'">
+            <label for="selectedUpbjj">UT-Daerah</label>
+            <select id="selectedUpbjj" v-model="selectedUpbjj">
+              <option value="">Semua UT-Daerah</option>
+              <option v-for="upbjj in upbjjList" :key="upbjj" :value="upbjj">{{ upbjj }}</option>
+            </select>
+          </div>
+
+          <div class="field" v-if="filterMode === 'upbjj' && selectedUpbjj">
+            <label for="selectedKategori">Kategori Mata Kuliah</label>
+            <select id="selectedKategori" v-model="selectedKategori">
+              <option value="">Semua kategori</option>
+              <option v-for="kategori in categoryFilterOptions" :key="kategori" :value="kategori">{{ kategori }}</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="statusFilter">Status stok</label>
+            <select id="statusFilter" v-model="statusFilter">
+              <option value="all">Semua status</option>
+              <option value="reorder">Perlu reorder</option>
+              <option value="empty">Stok kosong</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="searchQuery">Cari data</label>
+            <input id="searchQuery" v-model.trim="searchQuery" type="text" placeholder="Kode, judul, atau rak">
+          </div>
+
+          <div class="field">
+            <label for="sortKey">Urutkan berdasarkan</label>
+            <select id="sortKey" v-model="sortKey">
+              <option value="judul">Judul</option>
+              <option value="qty">Stok</option>
+              <option value="harga">Harga</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Arah sort</label>
+            <div class="segmented-control">
+              <button type="button" class="segment" :class="{ active: sortDirection === 'asc' }" @click="sortDirection = 'asc'">Naik</button>
+              <button type="button" class="segment" :class="{ active: sortDirection === 'desc' }" @click="sortDirection = 'desc'">Turun</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <ba-app-modal :visible="stockModalOpen" title="Form Bahan Ajar" close-label="Tutup" @close="closeStockModal">
+      <template v-slot:heading>{{ stockFormMode === 'edit' ? 'Edit bahan ajar' : 'Tambah bahan ajar baru' }}</template>
+      <form class="form-grid modal-form" @submit.prevent="saveStock" @keydown.enter.prevent="saveStock">
+        <div class="field">
+          <label for="kode">Kode</label>
+          <input id="kode" v-model.trim="stockForm.kode" type="text" placeholder="Contoh: EKMA4117">
+          <small class="error-text" v-if="formErrors.kode">{{ formErrors.kode }}</small>
+        </div>
+
+        <div class="field">
+          <label for="judul">Judul</label>
+          <input id="judul" v-model.trim="stockForm.judul" type="text" placeholder="Nama mata kuliah">
+          <small class="error-text" v-if="formErrors.judul">{{ formErrors.judul }}</small>
+        </div>
+
+        <div class="field">
+          <label for="kategori">Kategori</label>
+          <select id="kategori" v-model="stockForm.kategori">
+            <option value="">Pilih kategori</option>
+            <option v-for="kategori in kategoriList" :key="kategori" :value="kategori">{{ kategori }}</option>
+          </select>
+          <small class="error-text" v-if="formErrors.kategori">{{ formErrors.kategori }}</small>
+        </div>
+
+        <div class="field">
+          <label for="upbjj">UT-Daerah</label>
+          <select id="upbjj" v-model="stockForm.upbjj">
+            <option value="">Pilih UT-Daerah</option>
+            <option v-for="upbjj in upbjjList" :key="upbjj" :value="upbjj">{{ upbjj }}</option>
+          </select>
+          <small class="error-text" v-if="formErrors.upbjj">{{ formErrors.upbjj }}</small>
+        </div>
+
+        <div class="field">
+          <label for="lokasiRak">Lokasi Rak</label>
+          <input id="lokasiRak" v-model.trim="stockForm.lokasiRak" type="text" placeholder="Contoh: R4-D2">
+          <small class="error-text" v-if="formErrors.lokasiRak">{{ formErrors.lokasiRak }}</small>
+        </div>
+
+        <div class="field">
+          <label for="harga">Harga</label>
+          <input id="harga" v-model.number="stockForm.harga" type="number" min="0" step="500">
+          <small class="error-text" v-if="formErrors.harga">{{ formErrors.harga }}</small>
+        </div>
+
+        <div class="field">
+          <label for="qty">Jumlah Stok</label>
+          <input id="qty" v-model.number="stockForm.qty" type="number" min="0" step="1">
+          <small class="error-text" v-if="formErrors.qty">{{ formErrors.qty }}</small>
+        </div>
+
+        <div class="field">
+          <label for="safety">Safety Stock</label>
+          <input id="safety" v-model.number="stockForm.safety" type="number" min="0" step="1">
+          <small class="error-text" v-if="formErrors.safety">{{ formErrors.safety }}</small>
+        </div>
+
+        <div class="field field-full">
+          <label for="catatanHTML">Catatan HTML</label>
+          <textarea id="catatanHTML" v-model="stockForm.catatanHTML" rows="3" placeholder="Contoh: <em>Edisi revisi</em>"></textarea>
+          <small class="hint">Isian ini akan ditampilkan menggunakan v-html.</small>
+        </div>
+
+        <div class="form-actions field-full">
+          <button class="button" type="submit">{{ stockFormMode === 'edit' ? 'Simpan perubahan' : 'Tambah data' }}</button>
+          <button class="button button-secondary" type="button" @click="closeStockModal">Batal</button>
+        </div>
+
+        <p class="message success field-full" v-if="formMessage && !hasFormErrors" v-text="formMessage"></p>
+      </form>
+    </ba-app-modal>
+
+    <section class="panel panel-table">
+      <header class="panel-head">
+        <div>
+          <span class="panel-kicker">Daftar Stok</span>
+          <h2>Data bahan ajar yang tampil</h2>
+        </div>
+        <div class="panel-meta">
+          <span class="pill" v-text="filteredStock.length + ' item tampil'"></span>
+          <span class="pill" v-text="activeFilterSummary"></span>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Kode / Judul</th>
+              <th>Kategori</th>
+              <th>UT-Daerah</th>
+              <th>Rak</th>
+              <th>Qty</th>
+              <th>Safety</th>
+              <th>Status</th>
+              <th>Harga</th>
+              <th>Catatan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in filteredStock" :key="item.kode">
+              <td>
+                <div class="stacked-cell">
+                  <strong v-text="item.kode"></strong>
+                  <span v-text="item.judul"></span>
+                </div>
+              </td>
+              <td v-text="item.kategori"></td>
+              <td v-text="item.upbjj"></td>
+              <td v-text="item.lokasiRak"></td>
+              <td v-text="formatQuantity(item.qty)"></td>
+              <td v-text="formatQuantity(item.safety)"></td>
+              <td>
+                <ba-status-badge :item="item"></ba-status-badge>
+              </td>
+              <td v-text="formatCurrency(item.harga)"></td>
+              <td><div class="html-preview" v-html="item.catatanHTML"></div></td>
+              <td>
+                <button class="button button-small" type="button" @click="editStock(index)">Edit</button>
+                <button class="button button-secondary button-small" type="button" @click="deleteStock(index)">Hapus</button>
+              </td>
+            </tr>
+            <tr v-if="!filteredStock.length">
+              <td colspan="10">
+                <div class="empty-state">Tidak ada data yang cocok dengan filter aktif.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</script>

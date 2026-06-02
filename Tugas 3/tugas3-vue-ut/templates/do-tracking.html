@@ -1,0 +1,201 @@
+<script type="text/x-template" id="tpl-do-tracking">
+  <div>
+    <section class="hero hero-compact">
+      <div class="hero-copy">
+        <p class="eyebrow">Halaman Tracking</p>
+        <h1>Tracking Delivery Order</h1>
+        <p class="hero-text">Tambahkan DO baru dan pantau status pengiriman paket bahan ajar.</p>
+      </div>
+      <div class="hero-actions">
+        <!-- <button class="button button-secondary" type="button" @click="$emit('reset-search')">Reset Cari</button> -->
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">Total DO</span>
+        <strong v-text="trackingRecords.length"></strong>
+        <span class="stat-help">Semua data tracking yang tersimpan</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">DO terbaru</span>
+        <strong v-text="latestDoNumber"></strong>
+        <span class="stat-help">Nomor terakhir di daftar</span>
+      </article>
+      <article class="stat-card alert-warning">
+        <span class="stat-label">Paket aktif</span>
+        <strong v-text="trackingRecords.length"></strong>
+        <span class="stat-help">Paket bahan ajar yang tersedia</span>
+      </article>
+      <article class="stat-card alert-danger">
+        <span class="stat-label">Ekspedisi</span>
+        <strong v-text="pengirimanList.length"></strong>
+        <span class="stat-help">Pilihan pengiriman dalam form</span>
+      </article>
+    </section>
+
+    <section class="layout-two">
+      <article class="panel">
+        <header class="panel-head">
+          <div>
+            <span class="panel-kicker">Input DO</span>
+            <h2>Tambah delivery order baru</h2>
+          </div>
+          <button class="button button-ghost" type="button" @click="resetTrackingForm">Reset form</button>
+        </header>
+
+        <form class="form-grid" @submit.prevent="saveTrackingOrder" @keydown.enter.prevent="saveTrackingOrder">
+          <div class="field field-full">
+            <label>Nomor DO otomatis</label>
+            <div class="readonly-box" v-text="nextDoNumber"></div>
+          </div>
+
+          <div class="field">
+            <label for="nim">NIM</label>
+            <input id="nim" v-model.trim="trackingForm.nim" type="text" placeholder="Masukkan NIM">
+            <small class="error-text" v-if="formErrors.nim" v-text="formErrors.nim"></small>
+          </div>
+
+          <div class="field">
+            <label for="nama">Nama</label>
+            <input id="nama" v-model.trim="trackingForm.nama" type="text" placeholder="Nama mahasiswa">
+            <small class="error-text" v-if="formErrors.nama" v-text="formErrors.nama"></small>
+          </div>
+
+          <div class="field">
+            <label for="ekspedisi">Ekspedisi</label>
+            <select id="ekspedisi" v-model="trackingForm.ekspedisiKode">
+              <option value="">Pilih ekspedisi</option>
+              <option v-for="item in pengirimanList" :key="item.kode" :value="item.kode">{{ item.kode }} - {{ item.nama }}</option>
+            </select>
+            <small class="error-text" v-if="formErrors.ekspedisiKode" v-text="formErrors.ekspedisiKode"></small>
+          </div>
+
+          <div class="field">
+            <label for="paketKode">Paket bahan ajar</label>
+            <select id="paketKode" v-model="trackingForm.paketKode">
+              <option value="">Pilih paket</option>
+              <option v-for="item in paketList" :key="item.kode" :value="item.kode">{{ item.kode }} - {{ item.nama }}</option>
+            </select>
+            <small class="error-text" v-if="formErrors.paketKode" v-text="formErrors.paketKode"></small>
+          </div>
+
+          <div class="field">
+            <label for="tanggalKirim">Tanggal Kirim</label>
+            <input id="tanggalKirim" v-model="trackingForm.tanggalKirim" type="date">
+            <small class="error-text" v-if="formErrors.tanggalKirim" v-text="formErrors.tanggalKirim"></small>
+          </div>
+
+          <div class="field">
+            <label>Total Harga</label>
+            <div class="readonly-box" v-text="formatCurrency(trackingForm.totalHarga)"></div>
+          </div>
+
+          <div class="field field-full" v-if="selectedPaket">
+            <label>Detail paket terpilih</label>
+            <div class="package-detail">
+              <strong>{{ selectedPaket.kode }} - {{ selectedPaket.nama }}</strong>
+              <span>Isi paket:</span>
+              <ul>
+                <li v-for="item in selectedPaket.isi" :key="item">{{ item }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="form-actions field-full">
+            <button class="button" type="submit">Simpan DO</button>
+          </div>
+
+          <p class="message success" v-if="formMessage && !hasFormErrors" v-text="formMessage"></p>
+        </form>
+      </article>
+
+      <article class="panel">
+        <header class="panel-head">
+          <div>
+            <span class="panel-kicker">Ringkasan</span>
+            <h2>Status tracking</h2>
+          </div>
+        </header>
+
+        <div class="tracking-summary">
+          <div class="summary-row">
+            <span>DO aktif</span>
+            <strong v-text="trackingRecords.length"></strong>
+          </div>
+          <div class="summary-row">
+            <span>Tahun berjalan</span>
+            <strong v-text="currentYear"></strong>
+          </div>
+          <div class="summary-row">
+            <span>Nomor berikutnya</span>
+            <strong v-text="nextDoNumber"></strong>
+          </div>
+        </div>
+
+        <div class="field search-box">
+          <label for="trackingSearch">Cari DO / NIM / Nama</label>
+          <input id="trackingSearch" v-model.trim="trackingSearch" type="text" placeholder="Contoh: Rina atau DO2025-0001" @keyup.enter="submitTrackingSearch" @keyup.esc="clearTrackingSearch">
+        </div>
+      </article>
+    </section>
+
+    <section class="stack-list">
+      <article class="tracking-card" v-for="entry in filteredTrackingRecords" :key="entry.nomor">
+        <header class="tracking-head">
+          <div>
+            <span class="panel-kicker" v-text="entry.nomor"></span>
+            <h2 v-text="entry.nama"></h2>
+          </div>
+          <span class="status-pill success">
+            <span class="status-dot"></span>
+            <span v-text="entry.status"></span>
+          </span>
+        </header>
+
+        <div class="tracking-meta">
+          <div>
+            <span class="meta-label">NIM</span>
+            <strong v-text="entry.nim"></strong>
+          </div>
+          <div>
+            <span class="meta-label">Ekspedisi</span>
+            <strong v-text="entry.ekspedisiLabel"></strong>
+          </div>
+          <div>
+            <span class="meta-label">Tanggal kirim</span>
+            <strong v-text="formatDateDisplay(entry.tanggalKirim)"></strong>
+          </div>
+          <div>
+            <span class="meta-label">Paket</span>
+            <strong>{{ entry.paketKode }} - {{ getPackageName(entry.paketKode) }}</strong>
+          </div>
+          <div>
+            <span class="meta-label">Total</span>
+            <strong v-text="formatCurrency(entry.totalHarga)"></strong>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item" v-for="step in entry.perjalanan" :key="step.waktu">
+            <span class="timeline-time" v-text="step.waktu"></span>
+            <div class="timeline-line"></div>
+            <p v-text="step.keterangan"></p>
+          </div>
+        </div>
+
+        <div class="progress-update">
+          <label :for="`progress-${entry.nomor}`">Tambah status perjalanan</label>
+          <div class="progress-row">
+            <input :id="`progress-${entry.nomor}`" v-model.trim="entry.newProgress" type="text" placeholder="Contoh: Paket tiba di kantor tujuan" @keyup.enter.prevent="addTrackingProgress(entry)">
+            <button class="button button-small" type="button" @click="addTrackingProgress(entry)">Tambah</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="empty-state" v-if="!filteredTrackingRecords.length">
+        Tidak ada data tracking yang cocok dengan pencarian.
+      </article>
+    </section>
+  </div>
+</script>
